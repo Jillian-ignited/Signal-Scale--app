@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import BrandSetup from './components/BrandSetup';
-import Dashboard from './components/Dashboard';
+import Dashboard from './components/DynamicDashboard';
 import './App.css';
 
 function App() {
