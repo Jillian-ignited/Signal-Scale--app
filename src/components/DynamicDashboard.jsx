@@ -17,6 +17,16 @@ import {
   Clock,
   Globe
 } from 'lucide-react';
+import { fetchAnalysis } from "../lib/utils";
+
+async function handleRunAnalysis() {
+  try {
+    const result = await fetchAnalysis(userInput);
+    setAnalysis(result);
+  } catch (error) {
+    console.error("Dynamic analysis failed:", error);
+  }
+}
 
 const DynamicDashboard = ({ brandConfig, onReconfigure }) => {
   const [loading, setLoading] = useState(true);
