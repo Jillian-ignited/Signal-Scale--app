@@ -1,0 +1,1 @@
+# Signal & Scale - Competitive Intelligence Frontend\n\nProfessional SaaS dashboard for competitive intelligence analysis.\n\n## Features\n- Real-time competitive analysis\n- Brand setup and competitor management\n- Interactive dashboard with KPIs\n- PDF export functionality\n- Mobile responsive design\n\n## Deployment\nAutomatically deploys to Render on push to main branch.
