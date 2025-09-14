@@ -18,6 +18,7 @@ import {
   Globe
 } from 'lucide-react';
 import { fetchAnalysis } from "../lib/utils";
+import { runDynamicAnalysis } from "../lib/utils";
 
 async function handleRunAnalysis() {
   try {
