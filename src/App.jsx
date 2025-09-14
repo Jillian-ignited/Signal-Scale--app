@@ -23,10 +23,8 @@ function App() {
         <BrandSetup onComplete={handleBrandSetupComplete} />
       )}
       
-      {currentView === 'dashboard' && brandConfig && (
-        <Dashboard 
-          brandConfig={brandConfig} 
-          onReconfigure={handleReconfigure}
+      {currentView === 'dynamicdashboard' && brandConfig && (
+       DynamicDashboard brandConfig={brandConfig} onReconfigure={handleReconfigure} /> 
         />
       )}
     </div>
