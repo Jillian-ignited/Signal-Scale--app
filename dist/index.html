@@ -1,3 +1,48 @@
+<!-- HARD HOTFIX: rewrite old backend host to the correct one -->
+<script>
+  (function () {
+    const BAD = "https://signal-scale-backend.onrender.com";
+    const GOOD = "https://signal-scale.onrender.com";
+
+    const origFetch = window.fetch;
+    window.fetch = function (input, init) {
+      try {
+        if (typeof input === "string") {
+          if (input.includes(BAD)) {
+            const fixed = input.replace(BAD, GOOD);
+            console.warn("[Signal&Scale Hotfix] Rewriting fetch URL:", input, "→", fixed);
+            return origFetch(fixed, init);
+          }
+        } else if (input && input.url && typeof input.url === "string" && input.url.includes(BAD)) {
+          const fixed = input.url.replace(BAD, GOOD);
+          console.warn("[Signal&Scale Hotfix] Rewriting fetch Request URL:", input.url, "→", fixed);
+          input = new Request(fixed, input);
+        }
+      } catch (e) {
+        console.warn("[Signal&Scale Hotfix] fetch patch error:", e);
+      }
+      return origFetch(input, init);
+    };
+
+    // Also fix XHR just in case some lib uses it
+    const OldXHR = window.XMLHttpRequest;
+    function PatchedXHR() {
+      const xhr = new OldXHR();
+      const open = xhr.open;
+      xhr.open = function (method, url, async, user, password) {
+        if (typeof url === "string" && url.includes(BAD)) {
+          const fixed = url.replace(BAD, GOOD);
+          console.warn("[Signal&Scale Hotfix] Rewriting XHR URL:", url, "→", fixed);
+          return open.call(this, method, fixed, async, user, password);
+        }
+        return open.call(this, method, url, async, user, password);
+      };
+      return xhr;
+    }
+    window.XMLHttpRequest = PatchedXHR;
+  })();
+</script>
+
 <!doctype html>
 <html lang="en">
   <head>
