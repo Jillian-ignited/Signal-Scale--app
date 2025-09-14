@@ -1,6 +1,6 @@
 // src/lib/utils.js
 const ENV = import.meta.env?.VITE_API_URL;
-const FALLBACK = "https://signal-scale.onrender.com"; // correct backend
+const FALLBACK = "https://signal-scale.onrender.com"; // ✅ correct backend
 export const API_URL = (ENV || FALLBACK).replace(/\/+$/, "");
 
 async function request(path, method = "GET", body) {
