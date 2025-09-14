@@ -1,6 +1,44 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <script>
+(function () {
+  const BAD = "https://signal-scale-backend.onrender.com";
+  const GOOD = "https://signal-scale.onrender.com";
+
+  const _fetch = window.fetch;
+  window.fetch = function (input, init) {
+    if (typeof input === "string" && input.includes(BAD)) {
+      const fixed = input.replace(BAD, GOOD);
+      console.warn("[Hotfix] fetch:", input, "→", fixed);
+      return _fetch(fixed, init);
+    }
+    if (input && input.url && String(input.url).includes(BAD)) {
+      const fixed = input.url.replace(BAD, GOOD);
+      console.warn("[Hotfix] fetch Request:", input.url, "→", fixed);
+      input = new Request(fixed, input);
+    }
+    return _fetch(input, init);
+  };
+
+  const X = window.XMLHttpRequest;
+  function PatchedXHR() {
+    const xhr = new X();
+    const open = xhr.open;
+    xhr.open = function (m, url, a, u, p) {
+      if (typeof url === "string" && url.includes(BAD)) {
+        const fixed = url.replace(BAD, GOOD);
+        console.warn("[Hotfix] XHR:", url, "→", fixed);
+        return open.call(this, m, fixed, a, u, p);
+      }
+      return open.call(this, m, url, a, u, p);
+    };
+    return xhr;
+  }
+  window.XMLHttpRequest = PatchedXHR;
+})();
+</script>
+
     <meta charset="UTF-8" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
