@@ -1,52 +1,47 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <script>
-(function () {
-  const BAD = "https://signal-scale-backend.onrender.com";
-  const GOOD = "https://signal-scale.onrender.com";
+<head>
+  <meta charset="utf-8" />
+  <title>Signal & Scale — Competitive Intelligence</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 24px; line-height: 1.35; }
+    label { display:block; margin-top: 12px; font-weight: 600; }
+    input, textarea { width: 100%; padding: 10px; margin-top: 6px; }
+    button { margin-top: 16px; padding: 10px 14px; cursor: pointer; }
+    pre { background: #f6f8fa; padding: 12px; overflow: auto; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  </style>
+</head>
+<body>
+  <h1>Signal & Scale — Competitive Intelligence</h1>
 
-  const _fetch = window.fetch;
-  window.fetch = function (input, init) {
-    if (typeof input === "string" && input.includes(BAD)) {
-      const fixed = input.replace(BAD, GOOD);
-      console.warn("[Hotfix] fetch:", input, "→", fixed);
-      return _fetch(fixed, init);
-    }
-    if (input && input.url && String(input.url).includes(BAD)) {
-      const fixed = input.url.replace(BAD, GOOD);
-      console.warn("[Hotfix] fetch Request:", input.url, "→", fixed);
-      input = new Request(fixed, input);
-    }
-    return _fetch(input, init);
-  };
+  <div class="row">
+    <div>
+      <label>Brand Name</label>
+      <input id="brandName" placeholder="Crooks & Castles" />
 
-  const X = window.XMLHttpRequest;
-  function PatchedXHR() {
-    const xhr = new X();
-    const open = xhr.open;
-    xhr.open = function (m, url, a, u, p) {
-      if (typeof url === "string" && url.includes(BAD)) {
-        const fixed = url.replace(BAD, GOOD);
-        console.warn("[Hotfix] XHR:", url, "→", fixed);
-        return open.call(this, m, fixed, a, u, p);
-      }
-      return open.call(this, m, url, a, u, p);
-    };
-    return xhr;
-  }
-  window.XMLHttpRequest = PatchedXHR;
-})();
-</script>
+      <label>Brand URL (optional)</label>
+      <input id="brandUrl" placeholder="https://example.com" />
 
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Signal & Scale - Competitive Intelligence Platform</title>
-    <script type="module" crossorigin src="/assets/index-C4YqiT7g.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-DOanj_LZ.css">
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
+      <label>Competitors (one per line; use 'Name | URL')</label>
+      <textarea id="competitors" rows="8" placeholder="Ed Hardy | https://...\nAffliction | https://...\nHellstar | https://..."></textarea>
+
+      <div>
+        <button id="analyzeBtn">Analyze</button>
+        <button id="exportBtn">Export CSV</button>
+      </div>
+    </div>
+
+    <div>
+      <label>API Base URL</label>
+      <input id="apiBase" placeholder="(optional) e.g. https://signal-scale.onrender.com" />
+
+      <label>Result</label>
+      <pre id="result">No results yet.</pre>
+    </div>
+  </div>
+
+  <script type="module" src="./main.js"></script>
+</body>
 </html>
