@@ -1,7 +1,8 @@
 // vite.config.js
+import react from "@vitejs/plugin-react";
+import tailwind from "@tailwindcss/vite";
+
 export default {
-  build: {
-    outDir: "dist",
-    sourcemap: true
-  }
+  plugins: [react(), tailwind()],
+  build: { outDir: "dist", sourcemap: true }
 };
