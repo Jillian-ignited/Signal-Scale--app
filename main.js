@@ -1,4 +1,3 @@
-// /main.js
 const qs = (s) => document.querySelector(s);
 const resultEl = qs('#result');
 
@@ -6,16 +5,11 @@ function buildPayload() {
   const brandName = qs('#brandName').value.trim();
   const brandUrl = qs('#brandUrl').value.trim();
   const compLines = qs('#competitors').value.split('\n').map(l => l.trim()).filter(Boolean);
-
   const competitors = compLines.map(line => {
     const [name, url] = line.split('|').map(p => (p || '').trim());
     return { name: name || null, url: url || null };
   });
-
-  return {
-    brand: { name: brandName || null, url: brandUrl || null, meta: null },
-    competitors
-  };
+  return { brand: { name: brandName || null, url: brandUrl || null, meta: null }, competitors };
 }
 
 function getApiBase() {
@@ -23,6 +17,7 @@ function getApiBase() {
   return v || '';
 }
 
+/** Robust fetch: reads text, then tries JSON. Prevents "Unexpected end of JSON input". */
 async function callApi(path, payload, expectBlob = false) {
   const base = getApiBase();
   const url = `${base}${path}`;
@@ -32,37 +27,39 @@ async function callApi(path, payload, expectBlob = false) {
     body: JSON.stringify(payload),
   });
 
-  if (!res.ok) {
-    let errPayload;
-    try { errPayload = await res.json(); } catch { errPayload = await res.text(); }
-    throw new Error(`API ${res.status} ${res.statusText}: ${JSON.stringify(errPayload)}`);
+  if (expectBlob) {
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      throw new Error(`API ${res.status} ${res.statusText}: ${text || '[no body]'}`);
+    }
+    return await res.blob();
   }
 
-  if (expectBlob) return await res.blob();
-  return await res.json();
+  const raw = await res.text().catch(() => '');
+  let data = null;
+  try { data = raw ? JSON.parse(raw) : null; } catch { /* not JSON */ }
+
+  if (!res.ok) {
+    throw new Error(`API ${res.status} ${res.statusText}: ${data ? JSON.stringify(data) : (raw || '[no body]')}`);
+  }
+  return data ?? { ok: true, notice: 'Empty JSON body returned.' };
 }
 
-function show(json) {
-  resultEl.textContent = JSON.stringify(json, null, 2);
-}
-function showError(err) {
-  resultEl.textContent = `❌ ${err.message}`;
-}
+function show(x) { resultEl.textContent = JSON.stringify(x, null, 2); }
+function showError(err) { resultEl.textContent = `❌ ${err.message}`; }
 
 qs('#analyzeBtn').addEventListener('click', async () => {
   const payload = buildPayload();
-  show({status: "sending", payload});
+  show({ status: 'sending', payload });
   try {
     const data = await callApi('/api/intelligence/analyze', payload);
     show(data);
-  } catch (err) {
-    showError(err);
-  }
+  } catch (err) { showError(err); }
 });
 
 qs('#exportBtn').addEventListener('click', async () => {
   const payload = buildPayload();
-  show({status: "exporting", payload});
+  show({ status: 'exporting', payload });
   try {
     const blob = await callApi('/api/intelligence/export', payload, true);
     const url = URL.createObjectURL(blob);
@@ -73,8 +70,6 @@ qs('#exportBtn').addEventListener('click', async () => {
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
-    show({ok: true, message: 'CSV downloaded.'});
-  } catch (err) {
-    showError(err);
-  }
+    show({ ok: true, message: 'CSV downloaded.' });
+  } catch (err) { showError(err); }
 });
