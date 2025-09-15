@@ -1,19 +1,33 @@
-{
-  "name": "signal-scale-frontend",
-  "version": "1.0.0",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "start": "node server.js"
-  },
-  "dependencies": {
-    "express": "^4.19.2",
-    "http-proxy-middleware": "^3.0.3"
-  },
-  "devDependencies": {
-    "vite": "^6.3.5"
-  }
-}
+// server.js
+import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
+import { createProxyMiddleware } from "http-proxy-middleware";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const app = express();
+const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8000";
+
+app.use(
+  "/api",
+  createProxyMiddleware({
+    target: BACKEND_URL,
+    changeOrigin: true,
+    xfwd: true,
+    logLevel: "warn"
+  })
+);
+
+// Serve built assets
+const distDir = path.join(__dirname, "dist");
+app.use(express.static(distDir));
+
+app.get("/healthz", (_req, res) => res.json({ ok: true, frontend: "signal-scale" }));
+
+// SPA fallback
+app.get("*", (_req, res) => res.sendFile(path.join(distDir, "index.html")));
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`[frontend] listening on ${PORT} → ${BACKEND_URL}`));
