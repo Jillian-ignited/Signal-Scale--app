@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import BrandSetup from './components/BrandSetup';
-import Dashboard from './components/DynamicDashboard';
+import DynamicDashboard from './components/DynamicDashboard'; // make sure this is the default export
 import './App.css';
 
-function App() {
+export default function App() {
   const [brandConfig, setBrandConfig] = useState(null);
   const [currentView, setCurrentView] = useState('setup');
 
@@ -22,14 +22,13 @@ function App() {
       {currentView === 'setup' && (
         <BrandSetup onComplete={handleBrandSetupComplete} />
       )}
-      
-      {currentView === 'dynamicdashboard' && brandConfig && (
-       DynamicDashboard brandConfig={brandConfig} onReconfigure={handleReconfigure} /> 
+
+      {currentView === 'dashboard' && brandConfig && (
+        <DynamicDashboard
+          brandConfig={brandConfig}
+          onReconfigure={handleReconfigure}
         />
       )}
     </div>
   );
 }
-
-export default App;
-
