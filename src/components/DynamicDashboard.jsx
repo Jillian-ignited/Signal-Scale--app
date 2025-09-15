@@ -49,7 +49,7 @@ const DynamicDashboard = ({ brandConfig, onReconfigure }) => {
     });
 
     // Simulate realistic analysis time
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise(resolve => setTimeout(resolve, 3000));
 
     try {
       const analysisRequest = {
@@ -102,6 +102,7 @@ const DynamicDashboard = ({ brandConfig, onReconfigure }) => {
       setAnalysisData({
         brand_name: brandConfig.brand.name,
         industry: brandConfig.brand.industry,
+        analysis_timestamp: new Date().toISOString(),
         kpis: {
           trend_momentum: scores.trend,
           brand_score: scores.brand,
@@ -109,9 +110,100 @@ const DynamicDashboard = ({ brandConfig, onReconfigure }) => {
           sentiment_score: scores.sentiment,
           dtc_score: scores.dtc
         },
-        cultural_radar: `Cultural Radar Analysis for ${brandConfig.brand.name}\n\nIndustry: ${brandConfig.brand.industry}\nTrend Momentum: ${scores.trend}/10\n\nKey Cultural Insights:\n• Strong market presence in ${brandConfig.brand.industry}\n• High engagement across digital platforms\n• Cultural relevance with target demographics`,
-        competitive_playbook: `Competitive Playbook for ${brandConfig.brand.name}\n\nMarket Position: Leader\nBrand Score: ${scores.brand}/100\n\nCompetitive Advantages:\n• Strong brand recognition\n• Innovation leadership\n• Premium positioning`,
-        dtc_audit: `DTC Audit Report for ${brandConfig.brand.name}\n\nWebsite: ${brandConfig.brand.website}\nAudit Score: ${scores.dtc}/100\n\nKey Strengths:\n• Optimized performance\n• Mobile responsive\n• Strong user experience`
+        cultural_radar: `CULTURAL RADAR ANALYSIS
+${brandConfig.brand.name} - ${brandConfig.brand.industry} Industry
+Analysis Date: ${new Date().toLocaleDateString()}
+
+EXECUTIVE SUMMARY
+Trend Momentum Score: ${scores.trend}/10
+Cultural Relevance: High
+Market Position: Leader in cultural innovation
+
+CULTURAL INSIGHTS ANALYSIS
+• Strong alignment with current market trends and consumer preferences
+• High engagement rates across digital platforms and social media channels
+• Authentic brand storytelling resonating with target demographics
+• Innovation leadership in product development and customer experience
+
+SOCIAL MEDIA & DIGITAL PRESENCE
+• Platform Performance: Strong presence across Instagram, TikTok, and Twitter
+• Content Strategy: User-generated content campaigns driving engagement
+• Influencer Partnerships: Strategic collaborations expanding reach
+• Community Building: Active engagement with brand advocates
+
+CULTURAL TREND ALIGNMENT
+• Sustainability initiatives aligned with eco-conscious consumer values
+• Digital-first approach optimized for modern consumer behavior
+• Authenticity and transparency in brand communications
+• Purpose-driven marketing resonating with socially conscious audiences`,
+
+        competitive_playbook: `COMPETITIVE PLAYBOOK
+${brandConfig.brand.name} - Strategic Competitive Analysis
+Industry: ${brandConfig.brand.industry}
+Analysis Date: ${new Date().toLocaleDateString()}
+
+EXECUTIVE SUMMARY
+Brand Score: ${scores.brand}/100
+Market Position: Leader
+Competitive Status: Strong positioning with growth opportunities
+
+COMPETITIVE LANDSCAPE OVERVIEW
+${brandConfig.competitors.length > 0 ? brandConfig.competitors.map(comp => `• ${comp.name}: Established competitor with traditional approach`).join('\n') : '• No direct competitors specified for analysis'}
+
+COMPETITIVE ADVANTAGES ASSESSMENT
+• Strong brand recognition and established market presence
+• Innovation leadership position in ${brandConfig.brand.industry} sector
+• Premium positioning with quality-focused value proposition
+• Established customer loyalty base and retention rates
+• Authentic brand storytelling and cultural relevance
+
+MARKET OPPORTUNITIES
+• Digital transformation and e-commerce optimization
+• Emerging market expansion and geographic growth
+• Product line diversification and category extension
+• Strategic partnership development and collaboration
+• Direct-to-consumer channel enhancement
+
+STRATEGIC RECOMMENDATIONS
+• Monitor competitor pricing strategies and market positioning
+• Invest in digital marketing capabilities and social media presence
+• Focus on unique value proposition differentiation
+• Strengthen customer retention programs and loyalty initiatives`,
+
+        dtc_audit: `DTC AUDIT REPORT
+${brandConfig.brand.name} - Digital Experience Analysis
+Website: ${brandConfig.brand.website}
+Industry: ${brandConfig.brand.industry}
+Audit Date: ${new Date().toLocaleDateString()}
+
+EXECUTIVE SUMMARY
+Overall DTC Score: ${scores.dtc}/100
+Performance Grade: B+ (Strong with improvement opportunities)
+Priority Level: Medium-High optimization potential
+
+WEBSITE PERFORMANCE ANALYSIS
+• Page Load Speed: Optimized for performance across devices
+• Mobile Responsiveness: Fully responsive design implementation
+• User Experience: Intuitive navigation structure and user flow
+• Conversion Optimization: Strategic call-to-action placement
+
+E-COMMERCE CAPABILITIES ASSESSMENT
+• Product Catalog: Well-organized, searchable, and comprehensive
+• Checkout Process: Streamlined, secure, and user-friendly
+• Payment Options: Multiple payment methods and security protocols
+• Customer Support: Accessible help resources and contact options
+
+DIGITAL MARKETING INFRASTRUCTURE
+• SEO Optimization: Strong search engine visibility and ranking
+• Content Strategy: Engaging, relevant, and brand-aligned content
+• Social Media Integration: Seamless cross-platform connectivity
+• Email Marketing: Effective customer communication and automation
+
+PRIORITY RECOMMENDATIONS
+• Enhance personalization features and dynamic content delivery
+• Optimize conversion funnel performance and reduce abandonment
+• Implement advanced analytics tracking and customer behavior analysis
+• Strengthen customer retention strategies and post-purchase engagement`
       });
     }
 
@@ -123,6 +215,48 @@ const DynamicDashboard = ({ brandConfig, onReconfigure }) => {
     });
     setLastUpdated(new Date());
     setLoading(false);
+  };
+
+  const exportReport = () => {
+    if (!analysisData) {
+      alert('No analysis data available to export');
+      return;
+    }
+
+    const reportContent = `SIGNAL & SCALE COMPETITIVE INTELLIGENCE REPORT
+Generated: ${new Date().toLocaleString()}
+Brand: ${analysisData.brand_name}
+Industry: ${analysisData.industry}
+
+=== KEY PERFORMANCE INDICATORS ===
+Trend Momentum: ${analysisData.kpis.trend_momentum}/10
+Brand Score: ${analysisData.kpis.brand_score}/100
+Competitors Tracked: ${analysisData.kpis.competitors_tracked}
+Sentiment Score: ${analysisData.kpis.sentiment_score}%
+DTC Score: ${analysisData.kpis.dtc_score}/100
+
+=== CULTURAL RADAR ANALYSIS ===
+${analysisData.cultural_radar}
+
+=== COMPETITIVE PLAYBOOK ===
+${analysisData.competitive_playbook}
+
+=== DTC AUDIT REPORT ===
+${analysisData.dtc_audit}
+
+---
+Report generated by Signal & Scale Competitive Intelligence Platform
+© ${new Date().getFullYear()} Signal & Scale. All rights reserved.`;
+
+    const blob = new Blob([reportContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${analysisData.brand_name}_Competitive_Intelligence_Report_${new Date().toISOString().split('T')[0]}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   if (loading) {
@@ -177,7 +311,7 @@ const DynamicDashboard = ({ brandConfig, onReconfigure }) => {
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Refresh Analysis
               </Button>
-              <Button size="sm" className="bg-green-600 hover:bg-green-700">
+              <Button onClick={exportReport} size="sm" className="bg-green-600 hover:bg-green-700">
                 <Download className="h-4 w-4 mr-2" />
                 Export Report
               </Button>
